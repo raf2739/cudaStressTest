@@ -1,5 +1,5 @@
 # cudaStressTest
-CudaStressTest is a programm for made stressing your NVIDIA Jetson board!
+CudaStressTest is a programm for made stressing your NVIDIA Jetson board!<br>
 It works for both K1 and X1 processors.
 It prints the temperatures of the CPU and GPU.
 

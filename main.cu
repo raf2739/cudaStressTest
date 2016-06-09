@@ -47,14 +47,13 @@ void *Increment(void *args)
 __global__ void 
 intensive_kernel(unsigned int *cmd){
 	int threadId = threadIdx.x + (blockDim.x * blockIdx.x);
-	int done;
 	double* input;
 	double* compare;
 	
 	while (cmd[8]) {
 
                 if (threadIdx.x == 0 && blockIdx.x == 0) {
-			done = cmd[8];
+		
                         if (cmd[0] == REQ_START && cmd[1] != RSP_FINISH) {
                                 // we've got a request for a new job
                                 // initialize
@@ -135,6 +134,9 @@ main(int argc, char **argv){
 	}
 
 	timeToRun = atoi(argv[1]);
+
+//	system("sudo ./gpu_over.sh");
+//	system("sudo ./cpu_over.sh");
 
 	cudaSetDevice(0);
 	cudaStreamCreate(&stream1);
@@ -241,7 +243,7 @@ main(int argc, char **argv){
 	                        // get data
 	                        cudaMemcpyAsync(doubles_host,doubles_device, available_mem/4 * sizeof(char), cudaMemcpyDeviceToHost, stream2);
 	                        cudaStreamSynchronize(stream2);
-                            	printf("Size: %d\tPointer:%p\n",available_mem/4,doubles_host);	
+                            		
 				for(int i=0; i < 8; i++ ){
      					args.id = i;
 					args.size = available_mem/4;
@@ -254,7 +256,7 @@ main(int argc, char **argv){
       					}
    				}
 				for(int i = 0; i < 8; i++){
-					//pthread_join(thread[i], NULL);
+					pthread_join(thread[i], NULL);
 				}	
 				//pthread_exit(NULL);						
 				cmd_h[0] = REQ_UNDEFINED;
@@ -266,18 +268,31 @@ main(int argc, char **argv){
 	                	cudaStreamSynchronize(stream2);
 	                }
 			gettimeofday(&t2, 0);
-	                        //cudaStreamSynchronize(stream2);
+	                        
 	        }
 		cmd_h[8] = 1;
 		cudaMemcpyAsync(&cmd_d[8], &cmd_h[8], 1 * sizeof(unsigned int), cudaMemcpyHostToDevice, stream2);
         	cudaStreamSynchronize(stream2);
-
+		
+		while(cmd_h[8] == 1 && cmd_h[9] != 1){
+			cudaMemcpyAsync(&cmd_h[9], &cmd_d[9], 1 * sizeof(unsigned int), cudaMemcpyDeviceToHost, stream2);
+                	cudaStreamSynchronize(stream2);
+		}
 	}
 	else{
 		//error
 		printf("fork() failed!\n");
 		exit(EXIT_FAILURE);
 	}                                  	
+	cudaFree(doubles_device);
+	cudaFree(compare_device);
+	cudaFree(cmd_d);
 
+	cudaFreeHost(doubles_host);
+	cudaFreeHost(compare_host);
+	cudaFreeHost(cmd_h);
+
+//	system("sudo ./gpu_down.sh");
+//        system("sudo ./cpu_down.sh");	
 	printf("Finished!\n");
 }

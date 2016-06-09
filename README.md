@@ -11,8 +11,12 @@ It prints the temperatures of the CPU and GPU.<br>
 </ul>
 
 #Installation
-No installation required!<br>
-Just download and make!<br>
+<p>
+<pre>
+	No installation required!<br>
+	Just download and build!<br>
+</pre>
+</p>
 
 #Instructions
 In order to run the programm you first have to build it, with a simple make command. Then you have to execute it with a time parameter in seconds.<br>
